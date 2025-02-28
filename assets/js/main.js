@@ -7,85 +7,106 @@ const imgList = [
   'img_4.jpg'
 ];
 
-let imgSlaid = 0;
-const slaidCount = imgList.length;
+let imgSlide = 0;
+const slideCount = imgList.length;
+const slideTime = 5;
 let imageWidth;
-let isSlaiding = false;
-let slidingIntervalId;
-const slideTime = 1;
+let isSliding = false;
+let slideInterval;
 
-generateImg();
-generateDots();
+document.addEventListener("DOMContentLoaded", function () {
+  generateImg();
+  generateDots();
 
+  const leftBack = document.querySelector('#leftBack');
+  const rightNext = document.querySelector('#rightNext');
+  const imgContainer = document.querySelector('#imgContainer');
+  const currentButtonContainer = document.querySelector('#current__button');
+  const startStopButton = document.querySelector('#start-stop');
 
-const leftBack = document.querySelector('#leftBack');
-const rightNext = document.querySelector('#rightNext');
-const imgConteiner = document.querySelector('#imgContainer');
-const firstImg = document.querySelector('#imgContainer img');
-const currentbutton = document.querySelector('#current__button');
+  leftBack.addEventListener('click', onLeftClick);
+  rightNext.addEventListener('click', onRightClick);
+  currentButtonContainer.addEventListener('click', onDotClick);
+  startStopButton.addEventListener('click', startStop)
 
-
-imageWidth = firstImg.offsetWidth;
-
-leftBack.addEventListener('click', onLeftClick);
-rightNext.addEventListener('click', onRightClick);
-currentbutton.addEventListener('click', onDotClick);
+  setTimeout(() => {
+    imageWidth = document.querySelector('#imgContainer img').offsetWidth;
+  }, 100);
+});
 
 function generateImg() {
+  const imgContainer = document.querySelector('#imgContainer');
   let resultHtml = '';
-  imgList.forEach(imgList => {
-    resultHtml += `<img src="assets/images/${imgList}" alt="#">`;
 
-  })
-  document.querySelector('#carousel .carousel__container #imgContainer').innerHTML = resultHtml;
-  return resultHtml;
-};
+  imgList.forEach(img => {
+    resultHtml += `<img src="assets/images/${img}" alt="#">`;
+  });
+
+  imgContainer.innerHTML = resultHtml;
+}
 
 function generateDots() {
+  const currentButtonContainer = document.querySelector('#current__button');
   let resultHtml = '';
-  imgList.forEach((imgList, index) => {
-    const activeDot = index === 0 ? 'active' : '';
-    resultHtml += `<div class="current__button-item ${activeDot}" data-img="${index}"></div>`;
-  })
 
-  document.querySelector('#carousel #current__button').innerHTML = resultHtml;
-
-};
-
-function onDotClick() {
-  let resultHtml = '';
-  imgList.forEach((imgList, index) => {
+  imgList.forEach((_, index) => {
     const classActive = index === 0 ? 'active' : '';
     resultHtml += `<div class="current__button-item ${classActive}" data-img="${index}"></div>`;
-  })
-  document.querySelector('#carousel #current__button').innerHTML = resultHtml;
-};
+  });
+
+  currentButtonContainer.innerHTML = resultHtml;
+}
 
 function onLeftClick() {
-  imgSlaid--;
+  imgSlide--;
 
-  if(imgSlaid < 0) {
-    imgSlaid = slaidCount - 1;
+  if (imgSlide < 0) {
+    imgSlide = slideCount - 1;
   }
 
-  imgConteiner.style.transform = `translate(-${imgSlaid * firstImg.offsetWidth}px)`;
-  refreshActiveDot();
-};
+  updateSlide();
+}
+
 function onRightClick() {
-  imgSlaid++;
+  imgSlide++;
 
-  if(imgSlaid === slaidCount) {
-    imgSlaid = 0;
+  if (imgSlide === slideCount) {
+    imgSlide = 0;
   }
 
-  imgConteiner.style.transform = `translate(-${imgSlaid * firstImg.offsetWidth}px)`;
+  updateSlide();
+}
+
+function onDotClick(event) {
+  if (!event.target.classList.contains('current__button-item')) return;
+
+  imgSlide = parseInt(event.target.dataset.img);
+  updateSlide();
+}
+
+function updateSlide() {
+  const imgContainer = document.querySelector('#imgContainer');
+
+  imgContainer.style.transform = `translateX(-${imgSlide * imageWidth}px)`;
+  imgContainer.style.transition = `transform ${slideTime}s ease-in-out`;
+
   refreshActiveDot();
-};
+}
 
 function refreshActiveDot() {
-  const activeDot = document.querySelector('#current__button .active');
+  document.querySelectorAll('.current__button-item').forEach((dot, index) => {
+    dot.classList.toggle('active', index === imgSlide);
+  });
+}
 
-  if(activeDot) {
-    activeDot.classList.remove('active');
+function startStop(event) {
+  isSliding = !isSliding;
+  event.target.classList.toggle("stop");
+
+  if (isSliding) {
+    slideInterval = setInterval(onRightClick, slideTime * 1000);
+  } else {
+    clearInterval(slideInterval);
+    slideInterval = null;
   }
 }
