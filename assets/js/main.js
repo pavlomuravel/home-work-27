@@ -11,7 +11,7 @@ let imgSlide = 0;
 const slideCount = imgList.length;
 const slideTime = 3;
 let imageWidth;
-let isSliding = false;
+let isSliding = true;
 let slideInterval;
 
 document.addEventListener("DOMContentLoaded", function () {
@@ -20,7 +20,6 @@ document.addEventListener("DOMContentLoaded", function () {
 
   const leftBack = document.querySelector('#leftBack');
   const rightNext = document.querySelector('#rightNext');
-  const imgContainer = document.querySelector('#imgContainer');
   const currentButtonContainer = document.querySelector('#current__button');
   const startStopButton = document.querySelector('#start-stop .stop');
 
@@ -99,14 +98,13 @@ function refreshActiveDot() {
   });
 }
 startAutoSlide();
-
 function startAutoSlide() {
   slideInterval = setInterval(onRightClick, slideTime * 2000);
 }
 
 function startStop(event) {
   isSliding = !isSliding;
-  event.target.classList.toggle("stoped");
+  event.target.classList.toggle("stooped");
 
   if (isSliding) {
     slideInterval = setInterval(onRightClick, slideTime * 2000);
